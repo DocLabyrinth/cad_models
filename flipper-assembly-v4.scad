@@ -277,8 +277,8 @@ difference() {
             peg_count=2,
             initial_rotation=[0,180,90],
             initial_translation=[
-                -base_plate_width/2 + eos_switch_peg_box_base_width/2,// + eos_switch_x_offset,
-                base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,// base_plate_width/2 - eos_switch_peg_box_base_width,
+                -base_plate_width/2 + eos_switch_peg_box_base_width/2,
+                base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,
                 -base_plate_depth/2,
             ],
             render_as_peg_holes=true
@@ -297,17 +297,18 @@ difference() {
             render_as_peg_holes=true
         );
         
+        // flipper shaft holder
         radial_snap_pegs(
             radius=flipper_shaft_holder_outer_diameter/3,
             initial_translation=[
                     base_plate_length/2 - flipper_shaft_holder_base_x_margin,
                     base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
-                    -base_plate_depth/2
+                    base_plate_depth/2
             ],
             peg_width=2,
             peg_count=3,
             tolerance=0.2,
-            render_as_peg_holes=false
+            render_as_peg_holes=true
         );
     }
 }
@@ -448,8 +449,8 @@ union() {
         peg_count=2,
         initial_rotation=[0,180,90],
         initial_translation=[
-            -base_plate_width/2 + eos_switch_peg_box_base_width/2,// + eos_switch_x_offset,
-            base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,// base_plate_width/2 - eos_switch_peg_box_base_width,
+            -base_plate_width/2 + eos_switch_peg_box_base_width/2,
+            base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,
             -base_plate_depth/2
         ]
     );
