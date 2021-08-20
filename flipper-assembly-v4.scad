@@ -126,15 +126,111 @@ module snap_pegs(
             );
 }
 
+module radial_snap_pegs(
+    radius,
+    initial_translation,
+    peg_width,
+    peg_count=3,
+    tolerance=0.2,
+    fill_color="blue",
+    render_as_peg_holes=false
+) {
+    use_color = render_as_peg_holes == true ? "grey" : fill_color;
+    
+    color(use_color)
+    translate(initial_translation)
+    rotate([0,180,0])
+    
+    for (snap_peg_iter=[0:1:2])       
+        rotate(360/peg_count*snap_peg_iter, v=[0,0,1])
+            translate([0,radius,0])
+            snap_peg(
+                col_width=peg_width,
+                col_height=base_plate_depth-coil_plate_snap_height,
+                snap_width=peg_width,
+                snap_height=coil_plate_snap_height,
+                mini_col_height=base_plate_depth - coil_plate_snap_height,
+                tolerance=tolerance,
+                is_peg_hole=render_as_peg_holes
+            );
+}
+
 // base plate
 difference() {
-    cube(center = true, size = [
-        base_plate_length,
-        base_plate_width,
-        base_plate_depth
-    ]);
+    union() {        
+        cube(center = true, size = [
+            base_plate_length,
+            base_plate_width,
+            base_plate_depth
+        ]);
 
-    flipper_shaft_hole();
+
+        // feet with holes for screws
+        difference() {
+            translate([
+                base_plate_length/2 - feet_block_length,
+                base_plate_width/2,
+                -base_plate_depth/2
+            ])
+                cube([feet_block_length, feet_block_width, feet_block_depth]);
+
+            translate([
+                base_plate_length/2 - feet_block_length/2,
+                base_plate_width/2 + feet_block_width/2,
+                -base_plate_depth
+            ])
+                cylinder(h=very_long, r=feet_screw_hole_diameter/2);
+        }
+
+        difference() {
+            translate([
+                base_plate_length/2 - feet_block_length,
+                -base_plate_width/2 - feet_block_width,
+                -base_plate_depth/2
+            ])
+                cube([feet_block_length, feet_block_width, feet_block_depth]);
+
+            translate([
+                base_plate_length/2 - feet_block_length/2,
+                -base_plate_width/2 - feet_block_width/2,
+                -base_plate_depth
+            ])
+                cylinder(h=very_long, r=feet_screw_hole_diameter/2);
+        }
+
+        difference() {
+            translate([
+                -base_plate_length/2,
+                -base_plate_width/2 - feet_block_width,
+                -base_plate_depth/2
+            ])
+                cube([feet_block_length, feet_block_width, feet_block_depth]);
+
+            translate([
+                -base_plate_length/2 + feet_block_length/2,
+                -base_plate_width/2 - feet_block_width/2,
+                -base_plate_depth
+            ])
+                cylinder(h=very_long, r=feet_screw_hole_diameter/2);
+        }
+
+        difference() {
+            translate([
+                -base_plate_length/2,
+                base_plate_width/2,
+                -base_plate_depth/2
+            ])
+                cube([feet_block_length, feet_block_width, feet_block_depth]);
+
+            translate([
+                -base_plate_length/2 + feet_block_length/2,
+                base_plate_width/2 + feet_block_width/2,
+                -base_plate_depth
+            ])
+                cylinder(h=very_long, r=feet_screw_hole_diameter/2);
+        }
+
+    }
 
     /*
     ***
@@ -144,7 +240,10 @@ difference() {
     */
 
     // coil plate  
-    union() {    
+    union() {
+        flipper_shaft_hole();
+
+        // coil_plate
         snap_pegs(
             peg_width=coil_plate_base_height/4,
             peg_area_base_width=coil_plate_base_width,
@@ -197,8 +296,22 @@ difference() {
             ],
             render_as_peg_holes=true
         );
+        
+        radial_snap_pegs(
+            radius=flipper_shaft_holder_outer_diameter/3,
+            initial_translation=[
+                    base_plate_length/2 - flipper_shaft_holder_base_x_margin,
+                    base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
+                    -base_plate_depth/2
+            ],
+            peg_width=2,
+            peg_count=3,
+            tolerance=0.2,
+            render_as_peg_holes=false
+        );
     }
 }
+
 
      
 
@@ -367,7 +480,23 @@ union() {
 
         flipper_shaft_hole();
     };
+    radial_snap_pegs(
+        radius=flipper_shaft_holder_outer_diameter/3,
+        initial_translation=[
+                base_plate_length/2 - flipper_shaft_holder_base_x_margin,
+                base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
+                base_plate_depth/2
+        ],
+        peg_width=2,
+        peg_count=3,
+        tolerance=0.2,
+        fill_color="blue",
+        render_as_peg_holes=false
+    );
 }
+
+
+
 
 
 
@@ -394,71 +523,4 @@ union() {
             -base_plate_depth/2,
         ]
     );
-}
-
-
-
-// feet with holes for screws
-difference() {
-    translate([
-        base_plate_length/2 - feet_block_length,
-        base_plate_width/2,
-        -base_plate_depth/2
-    ])
-        cube([feet_block_length, feet_block_width, feet_block_depth]);
-
-    translate([
-        base_plate_length/2 - feet_block_length/2,
-        base_plate_width/2 + feet_block_width/2,
-        -base_plate_depth
-    ])
-        cylinder(h=very_long, r=feet_screw_hole_diameter/2);
-}
-
-difference() {
-    translate([
-        base_plate_length/2 - feet_block_length,
-        -base_plate_width/2 - feet_block_width,
-        -base_plate_depth/2
-    ])
-        cube([feet_block_length, feet_block_width, feet_block_depth]);
-
-    translate([
-        base_plate_length/2 - feet_block_length/2,
-        -base_plate_width/2 - feet_block_width/2,
-        -base_plate_depth
-    ])
-        cylinder(h=very_long, r=feet_screw_hole_diameter/2);
-}
-
-difference() {
-    translate([
-        -base_plate_length/2,
-        -base_plate_width/2 - feet_block_width,
-        -base_plate_depth/2
-    ])
-        cube([feet_block_length, feet_block_width, feet_block_depth]);
-
-    translate([
-        -base_plate_length/2 + feet_block_length/2,
-        -base_plate_width/2 - feet_block_width/2,
-        -base_plate_depth
-    ])
-        cylinder(h=very_long, r=feet_screw_hole_diameter/2);
-}
-
-difference() {
-    translate([
-        -base_plate_length/2,
-        base_plate_width/2,
-        -base_plate_depth/2
-    ])
-        cube([feet_block_length, feet_block_width, feet_block_depth]);
-
-    translate([
-        -base_plate_length/2 + feet_block_length/2,
-        base_plate_width/2 + feet_block_width/2,
-        -base_plate_depth
-    ])
-        cylinder(h=very_long, r=feet_screw_hole_diameter/2);
 }
