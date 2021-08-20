@@ -47,7 +47,7 @@ coil_stopper_pad_diameter = 10;
 coil_stopper_pad_depth = 2;
 
 spring_stopper_height = 30;
-spring_stopper_base_length = 4;
+spring_stopper_base_length = 6;
 
 feet_block_length = 15;
 feet_block_width = 14;
@@ -87,7 +87,7 @@ module snap_peg(
 
     difference(){
         union() {
-            cylinder(r=mini_col_width, h=mini_col_height - col_reduce); //mini column
+           cylinder(r=mini_col_width, h=mini_col_height); //mini column
             translate([0, 0, mini_col_height]) cylinder(r1=snap_width, r2=snap_width/2, h=snap_height); //arrow head  
         }
         if(!is_peg_hole) {
@@ -108,7 +108,6 @@ module snap_pegs(
     render_as_peg_holes=false
 ) {
     room_for_pegs = peg_area_base_width - peg_margin * 2;
-
     use_color = render_as_peg_holes == true ? "grey" : fill_color;
     
     color(use_color)
@@ -145,6 +144,91 @@ difference() {
     */
 
     // coil plate  
+    union() {    
+        snap_pegs(
+            peg_width=coil_plate_base_height/4,
+            peg_area_base_width=coil_plate_base_width,
+            peg_margin=coil_plate_snap_peg_margin,
+            initial_translation=[
+                base_plate_length/2 - coil_plate_base_height/2,
+                -base_plate_width/2,
+                -base_plate_depth/2
+            ],
+            render_as_peg_holes=true
+        );
+
+        // coil_front_plate
+        snap_pegs(
+            peg_width=coil_plate_base_height/4,
+            peg_area_base_width=coil_plate_base_width,
+            peg_margin=coil_plate_snap_peg_margin,
+            initial_translation=[
+                base_plate_length/2 - coil_plate_base_height - coil_space_length - coil_front_plate_base_height/2,
+                -base_plate_width/2,
+                -base_plate_depth/2
+            ],
+            render_as_peg_holes=true
+        );
+        
+        // EOS switch
+        snap_pegs(
+            peg_width=eos_switch_peg_box_base_width/4,
+            peg_area_base_width=eos_switch_peg_box_base_height,
+            peg_margin=5,
+            peg_count=2,
+            initial_rotation=[0,180,90],
+            initial_translation=[
+                -base_plate_width/2 + eos_switch_peg_box_base_width/2,// + eos_switch_x_offset,
+                base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,// base_plate_width/2 - eos_switch_peg_box_base_width,
+                -base_plate_depth/2,
+            ],
+            render_as_peg_holes=true
+        );
+        
+        // spring stopper plate
+        snap_pegs(
+            peg_width=coil_plate_base_height/4,
+            peg_area_base_width=coil_plate_base_width,
+            peg_margin=coil_plate_snap_peg_margin,
+            initial_translation=[
+                -base_plate_length/2 + spring_stopper_base_length/2,
+                -base_plate_width/2,
+                -base_plate_depth/2,
+            ],
+            render_as_peg_holes=true
+        );
+    }
+}
+
+     
+
+
+
+// coil plate with hole for plastic peg on Williams coil
+union() {
+    difference() {
+        // coil plate
+        translate([
+            -base_plate_length/2,
+            -base_plate_width/2,
+            base_plate_depth/2
+        ])
+            cube([
+                coil_plate_base_height,
+                coil_plate_base_width,
+                coil_plate_height
+            ]);
+        
+        // peg hole
+        rotate([0, 90, 0])
+        translate([
+            -(base_plate_depth/2 + coil_plate_peg_hole_top_height),
+            -base_plate_width/2 +coil_plate_base_width /2,
+            -base_plate_length-1
+        ])    
+            cylinder(h=very_long, r=coil_plate_peg_hole_diameter/2); 
+    }
+
     snap_pegs(
         peg_width=coil_plate_base_height/4,
         peg_area_base_width=coil_plate_base_width,
@@ -153,60 +237,9 @@ difference() {
             base_plate_length/2 - coil_plate_base_height/2,
             -base_plate_width/2,
             -base_plate_depth/2
-        ],
-        render_as_peg_holes=true
+        ]
     );
-
-    // coil_front_plate
-    snap_pegs(
-        peg_width=coil_plate_base_height/4,
-        peg_area_base_width=coil_plate_base_width,
-        peg_margin=coil_plate_snap_peg_margin,
-        initial_translation=[
-            base_plate_length/2 - coil_plate_base_height - coil_space_length - coil_front_plate_base_height/2,
-            -base_plate_width/2,
-            -base_plate_depth/2
-        ],
-        render_as_peg_holes=true
-    );   
 }
-
-
-
-// coil plate with hole for plastic peg on Williams coil
-difference() {
-    // coil plate
-    translate([
-        -base_plate_length/2,
-        -base_plate_width/2,
-        base_plate_depth/2
-    ])
-        cube([
-            coil_plate_base_height,
-            coil_plate_base_width,
-            coil_plate_height
-        ]);
-    
-    // peg hole
-    rotate([0, 90, 0])
-    translate([
-        -(base_plate_depth/2 + coil_plate_peg_hole_top_height),
-        -base_plate_width/2 +coil_plate_base_width /2,
-        -base_plate_length-1
-    ])    
-        cylinder(h=very_long, r=coil_plate_peg_hole_diameter/2); 
-}
-
-snap_pegs(
-    peg_width=coil_plate_base_height/4,
-    peg_area_base_width=coil_plate_base_width,
-    peg_margin=coil_plate_snap_peg_margin,
-    initial_translation=[
-        base_plate_length/2 - coil_plate_base_height/2,
-        -base_plate_width/2,
-        -base_plate_depth/2
-    ]
-);
 
 
 // coil stopper pad on the coil plate to take the main impact from the magnetized flipper rod
@@ -221,127 +254,147 @@ translate([
 
 
 // coil front plate to guide the metal rod and spring
-difference() {
-    // front plate
-    translate([
-        -base_plate_length/2 + coil_plate_base_height + coil_space_length,
-        -base_plate_width/2,
-        base_plate_depth/2
-    ])
-        cube([
-            coil_front_plate_base_height,
-            coil_plate_base_width,
-            coil_plate_height
-        ]);
+union() {
+    difference() {
+        // front plate
+        translate([
+            -base_plate_length/2 + coil_plate_base_height + coil_space_length,
+            -base_plate_width/2,
+            base_plate_depth/2
+        ])
+            cube([
+                coil_front_plate_base_height,
+                coil_plate_base_width,
+                coil_plate_height
+            ]);
 
-    // gap for metal rod + spring
+        // gap for metal rod + spring
+        translate([
+            -base_plate_length/2 + coil_plate_base_height + coil_space_length -1,
+            -base_plate_width/2 + coil_plate_base_width/2 - coil_front_plate_gap_width/2,
+            base_plate_depth/2 + coil_front_plate_gap_until
+        ]) 
+            cube([
+                coil_front_plate_base_height+10,
+                coil_front_plate_gap_width,
+                coil_plate_height
+            ]);
+    }
+
+        snap_pegs(
+            peg_width=coil_plate_base_height/4,
+            peg_area_base_width=coil_plate_base_width,
+            peg_margin=coil_plate_snap_peg_margin,
+            initial_translation=[
+                base_plate_length/2 - coil_plate_base_height - coil_space_length - coil_front_plate_base_height/2,
+                -base_plate_width/2,
+                -base_plate_depth/2
+            ],
+            fill_color="blue"
+        );  
+}
+
+
+// holder block for EOS switch
+first_peg_x = -base_plate_length/2 + eos_switch_x_offset + eos_switch_peg_box_base_height - eos_switch_peg_hole_x_margin;
+union() {
     translate([
-        -base_plate_length/2 + coil_plate_base_height + coil_space_length -1,
-        -base_plate_width/2 + coil_plate_base_width/2 - coil_front_plate_gap_width/2,
-        base_plate_depth/2 + coil_front_plate_gap_until
+        -base_plate_length/2 + eos_switch_x_offset,
+        base_plate_width/2 - eos_switch_peg_box_base_width,
+        base_plate_depth/2 
+    ])
+        // pegs to hold the EOS switch in place
+        cube([
+            eos_switch_peg_box_base_height,        
+            eos_switch_peg_box_base_width,
+            base_plate_depth/2 + eos_switch_peg_box_height
+        ]);
+        
+        // peg closest to the flipper shaft holder
+        rotate([90, 0, 0])
+        translate([
+            first_peg_x,
+            eos_switch_peg_box_height + eos_switch_peg_hole_y_margin, 
+            -base_plate_width/2 + eos_switch_peg_box_base_width
+        ])    
+            cylinder(h=eos_switch_peg_length, r=eos_switch_peg_diameter/2);
+        
+        // next peg is spaced with a constant width so it will fit the standard EOS switch size
+        rotate([90, 0, 0])
+        translate([
+            first_peg_x - eos_switch_peg_spacing,
+            eos_switch_peg_box_height + eos_switch_peg_hole_y_margin,        
+            -base_plate_width/2 + eos_switch_peg_box_base_width
+        ]) 
+            cylinder(h=eos_switch_peg_length, r=eos_switch_peg_diameter/2);
+
+    snap_pegs(
+        peg_width=eos_switch_peg_box_base_width/4,
+        peg_area_base_width=eos_switch_peg_box_base_height,
+        peg_margin=5,//coil_plate_snap_peg_margins,
+        peg_count=2,
+        initial_rotation=[0,180,90],
+        initial_translation=[
+            -base_plate_width/2 + eos_switch_peg_box_base_width/2,// + eos_switch_x_offset,
+            base_plate_length/2 - eos_switch_x_offset - eos_switch_peg_box_base_height,// base_plate_width/2 - eos_switch_peg_box_base_width,
+            -base_plate_depth/2
+        ]
+    );
+}
+
+
+// outer ring for flipper shaft holder base with cylinder-shaped hole cut through it
+union() {
+    difference() {
+        translate([
+            base_plate_length/2 - flipper_shaft_holder_base_x_margin,
+            base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
+            base_plate_depth/2
+        ])
+            // holder base
+            cylinder(h=flipper_shaft_holder_base_depth, r=flipper_shaft_holder_outer_diameter/2);
+
+        flipper_shaft_hole();
+    }
+    // flipper shaft holder cylinder with cylinder-shaped hole to cut through it
+    difference() {
+        translate([
+            base_plate_length/2 - flipper_shaft_holder_base_x_margin,
+            base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
+            base_plate_depth/2 + flipper_shaft_holder_base_depth
+        ])
+            cylinder(h=flipper_shaft_holder_holder_height, r=flipper_shaft_holder_diameter/2);   
+
+        flipper_shaft_hole();
+    };
+}
+
+
+
+// spring stopper plate to stop the flipper springing too far out
+union() {
+    translate([
+        base_plate_length/2 - spring_stopper_base_length,
+        -base_plate_width/2,
+        base_plate_depth/2,
     ]) 
         cube([
-            coil_front_plate_base_height+10,
-            coil_front_plate_gap_width,
-            coil_plate_height
+            spring_stopper_base_length,
+            coil_plate_base_width,
+            spring_stopper_height
         ]);
-}
 
     snap_pegs(
         peg_width=coil_plate_base_height/4,
         peg_area_base_width=coil_plate_base_width,
         peg_margin=coil_plate_snap_peg_margin,
         initial_translation=[
-            base_plate_length/2 - coil_plate_base_height - coil_space_length - coil_front_plate_base_height/2,
+            -base_plate_length/2 + spring_stopper_base_length/2,
             -base_plate_width/2,
-            -base_plate_depth/2
-        ],
-        fill_color="blue"
-    );  
-
-
-// holder block for EOS switch
-first_peg_x = -base_plate_length/2 + eos_switch_x_offset + eos_switch_peg_box_base_height - eos_switch_peg_hole_x_margin;
-
-translate([
-    -base_plate_length/2 + eos_switch_x_offset,
-    base_plate_width/2 - eos_switch_peg_box_base_width,
-    base_plate_depth/2 
-])
-    // pegs to hold the EOS switch in place
-    cube([
-        eos_switch_peg_box_base_height,        
-        eos_switch_peg_box_base_width,
-        base_plate_depth/2 + eos_switch_peg_box_height
-    ]);
-    
-    // peg closest to the flipper shaft holder
-    rotate([90, 0, 0])
-    translate([
-        first_peg_x,
-        eos_switch_peg_box_height + eos_switch_peg_hole_y_margin, 
-        -base_plate_width/2 + eos_switch_peg_box_base_width
-    ])    
-        cylinder(h=eos_switch_peg_length, r=eos_switch_peg_diameter/2);
-    
-    // next peg is spaced with a constant width so it will fit the standard EOS switch size
-    rotate([90, 0, 0])
-    translate([
-        first_peg_x - eos_switch_peg_spacing,
-        eos_switch_peg_box_height + eos_switch_peg_hole_y_margin,        
-        -base_plate_width/2 + eos_switch_peg_box_base_width
-    ]) 
-        cylinder(h=eos_switch_peg_length, r=eos_switch_peg_diameter/2);
-
-// snap_pegs(
-//     peg_area_base_width=coil_plate_base_width,
-//     peg_margin=coil_plate_snap_peg_margin,
-//     initial_translation=[
-//         -base_plate_length/2 + eos_switch_x_offset,
-//         base_plate_width/2 - eos_switch_peg_box_base_width,
-//         base_plate_depth/2 
-//     ],
-//     fill_color="blue"
-// );
-
-
-// outer flipper shaft holder base with cylinder-shaped hole cut through it
-difference() {
-    translate([
-        base_plate_length/2 - flipper_shaft_holder_base_x_margin,
-        base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
-        base_plate_depth/2
-    ])
-        // holder base
-        cylinder(h=flipper_shaft_holder_base_depth, r=flipper_shaft_holder_outer_diameter/2);
-
-    flipper_shaft_hole();
+            -base_plate_depth/2,
+        ]
+    );
 }
-// flipper shaft holder cylinder with cylinder-shaped hole to cut through it
-difference() {
-    translate([
-        base_plate_length/2 - flipper_shaft_holder_base_x_margin,
-        base_plate_width/2 - flipper_shaft_holder_outer_diameter/2 - flipper_shaft_holder_base_y_margin,
-        base_plate_depth/2 + flipper_shaft_holder_base_depth
-    ])
-        cylinder(h=flipper_shaft_holder_holder_height, r=flipper_shaft_holder_diameter/2);   
-
-    flipper_shaft_hole();
-};
-
-
-
-// spring stopper plate to stop the flipper springing too far out
-translate([
-    base_plate_length/2 - spring_stopper_base_length,
-    -base_plate_width/2,
-    base_plate_depth/2,
-]) 
-    cube([
-        spring_stopper_base_length,
-        coil_plate_base_width,
-        spring_stopper_height
-    ]);
 
 
 
