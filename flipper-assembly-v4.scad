@@ -24,14 +24,14 @@ eos_switch_peg_box_base_width = 9;
 eos_switch_peg_box_base_height = 18.9;
 eos_switch_x_offset = 27;
 
-eos_switch_peg_hole_x_margin = 4;
+eos_switch_peg_hole_x_margin = 6;
 eos_switch_peg_hole_y_margin = 2;
-eos_switch_peg_diameter = 3.4;
+eos_switch_peg_diameter = 3.7;
 eos_switch_width = 10;
 eos_switch_height = 20;
 eos_switch_peg_box_height = 9.55;
 eos_switch_peg_box_depth = 6.75;
-eos_switch_peg_spacing = 9;
+eos_switch_peg_spacing = 9.5;
 eos_switch_peg_length = 4;
 
 flipper_shaft_holder_outer_diameter = 24;
@@ -321,17 +321,28 @@ difference() {
 // coil plate with hole for plastic peg on Williams coil
 union() {
     difference() {
-        // coil plate
-        translate([
-            -base_plate_length/2,
-            -base_plate_width/2,
-            base_plate_depth/2
-        ])
-            cube([
-                coil_plate_base_height,
-                coil_plate_base_width,
-                coil_plate_height
-            ]);
+        union() {
+            // coil plate
+            translate([
+                -base_plate_length/2,
+                -base_plate_width/2,
+                base_plate_depth/2
+            ])
+                cube([
+                    coil_plate_base_height,
+                    coil_plate_base_width,
+                    coil_plate_height
+                ]);
+            
+            // coil stopper pad on the coil plate to take the main impact from the   magnetized flipper rod
+            rotate([0, 90, 0])
+                translate([
+                    -(base_plate_depth/2 + coil_stopper_pad_height),
+                    -base_plate_width/2 +coil_plate_base_width /2,
+                    -base_plate_length/2 + coil_plate_base_height
+                ])    
+                cylinder(h=coil_stopper_pad_depth, r=coil_stopper_pad_diameter/2);
+        }
         
         // peg hole
         rotate([0, 90, 0])
@@ -340,7 +351,9 @@ union() {
             -base_plate_width/2 +coil_plate_base_width /2,
             -base_plate_length-1
         ])    
-            cylinder(h=very_long, r=coil_plate_peg_hole_diameter/2); 
+            cylinder(h=very_long, r=coil_plate_peg_hole_diameter/2);
+        
+
     }
 
     snap_pegs(
@@ -356,14 +369,7 @@ union() {
 }
 
 
-// coil stopper pad on the coil plate to take the main impact from the magnetized flipper rod
-rotate([0, 90, 0])
-translate([
-    -(base_plate_depth/2 + coil_stopper_pad_height),
-    -base_plate_width/2 +coil_plate_base_width /2,
-    -base_plate_length/2 + coil_plate_base_height
-])    
-    cylinder(h=coil_stopper_pad_depth, r=coil_stopper_pad_diameter/2);
+
 
 
 
@@ -457,8 +463,9 @@ union() {
 }
 
 
-// outer ring for flipper shaft holder base with cylinder-shaped hole cut through it
+
 union() {
+    // outer ring for flipper shaft holder base with cylinder-shaped hole cut through it
     difference() {
         translate([
             base_plate_length/2 - flipper_shaft_holder_base_x_margin,
