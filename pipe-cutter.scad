@@ -96,12 +96,12 @@ module support_cross(width, height, depth) {
 module regular_nozzle(inner_width, wall_thickness) {
     difference() {
         union() {
-            cone(lower_width=pipe_inner_width, upper_width=0, height=main_cone_height*1.2);
+            cone(lower_width=inner_width, upper_width=0, height=main_cone_height*1.2);
 
             // wider grips to hold the hose in place
             for(nozzle_grip_iter = [0:nozzle_grip_count-1]) {
                 translate([0,0,(nozzle_grip_iter * nozzle_grip_gap) + nozzle_grip_offset])
-                cone(lower_width=inner_width/2 + wall_thickness, upper_width=0, height=main_cone_height * 0.6);
+                cone(lower_width=inner_width/2 + wall_thickness, upper_width=0, height=main_cone_height * 0.7);
             }
         };
     }
@@ -132,8 +132,8 @@ module cutter_front(inner_width, pipe_inner_width, wall_thickness, use_gardena_n
             if(use_gardena_nozzle == true) {
                 translate([0,0,main_height + main_cone_height * 0.5]) gardena_nozzle(inner_width=gardena_inner_width, wall_thickness=wall_thickness);
             } else {
-                translate([0,0,main_height + main_cone_height * 0.5]) {
-                    regular_nozzle(pipe_inner_width=inner_width, wall_thickness=wall_thickness);
+                translate([0,0,main_height + main_cone_height * 0.35]) {
+                    regular_nozzle(inner_width=small_pipe_inner_diameter, wall_thickness=wall_thickness);
                 }
             }
         };
