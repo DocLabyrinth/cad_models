@@ -1,0 +1,61 @@
+die_diameter = 38;
+die_depth = 10;
+floor_thickness = 3;
+full_depth = die_depth + floor_thickness;
+base_wall_thickness = 4;
+wall_tolerance = 0.2;
+wall_thickness = base_wall_thickness + wall_tolerance;
+support_width = 16;
+support_height = 35;
+support_rod_diameter = 8;
+support_screw_diameter = 6.5;
+support_rod_depth = 20;
+fixing_screw_diameter = 4.75;
+tat_hole_diameter = 15;
+
+/*
+    note: screw hole diameters are slightly undersized so that the screw bores a little into the pastic and holds more firmly
+*/
+
+$fn = 50;
+
+module rod_support() {
+   translate([-support_width/2, die_diameter/2 + wall_thickness, 0]) {
+        difference() {
+            cube([support_width, support_height, full_depth]);
+            rotate([-90,0,0]) {
+                translate([support_width/2,-full_depth/2,support_height-support_rod_depth+wall_thickness])          cylinder(r=support_rod_diameter/2,h=support_height-support_rod_depth+wall_thickness);
+                translate([support_width/2,-full_depth/2,wall_thickness])           #cylinder(r=support_screw_diameter/2,h=support_height-support_rod_depth+wall_thickness);
+            }
+        }
+    } 
+}
+
+module fixing_screw_hole() {
+    #cylinder(r=fixing_screw_diameter/2, h=wall_thickness*2+5);
+}
+
+union() {
+    rotate([0,0,90]) {
+        rod_support();
+    }
+
+    rotate([0,0,-90]) {
+        rod_support();
+        
+    }
+
+    difference() {
+        cylinder(r=die_diameter/2 + wall_thickness*2, h=full_depth);
+        
+        cylinder(r=die_diameter/2 + wall_tolerance, h=die_depth);
+        cylinder(r=tat_hole_diameter, h=die_depth*5);
+            rotate([0,90,120]) translate([-full_depth/2+floor_thickness/2,0,die_diameter/2-wall_thickness]) fixing_screw_hole();
+
+    rotate([0,90,60]) translate([-full_depth/2+floor_thickness/2,0,die_diameter/2-wall_thickness]) fixing_screw_hole();       
+
+    rotate([0,90,-60]) translate([-full_depth/2+floor_thickness/2,0,die_diameter/2-wall_thickness]) fixing_screw_hole();
+    
+    rotate([0,90,-120]) translate([-full_depth/2+floor_thickness/2,0,die_diameter/2-wall_thickness]) fixing_screw_hole();
+    }
+}
